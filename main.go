@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"./db"
-	"./routes"
+	"camera-app/backend/db"
+	"camera-app/backend/routes"
 
 	"github.com/joho/godotenv"
 )
@@ -17,10 +17,10 @@ func main() {
 	}
 
 	// Init DB
-	db.Init()
+	dbConn := db.Init()
 
 	// Init router
-	r := routes.InitRouter()
+	r := routes.InitRouter(dbConn)
 
 	port := os.Getenv("PORT")
 	if port == "" {
