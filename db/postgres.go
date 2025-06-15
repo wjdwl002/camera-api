@@ -1,28 +1,44 @@
 package db
 
 import (
-	"database/sql"
+	"fmt"
 	"log"
 
 	"camera-app/backend/config"
 
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-var DB *sql.DB
+var DB *gorm.DB
 
-func Init() {
-	dsn := config.GetDSN()
+func Init() *gorm.DB {
 
-	var err error
-	DB, err = sql.Open("postgres", dsn)
+	// Log connection details for debugging
+	fmt.Printf("Attempting to connect to database:\nHost: %s\nUser: %s\nDatabase: %s\n",
+		config.GetHost(),
+		config.GetUsername(),
+		config.GetDatabase())
+
+	// Construct connection string from individual parameters
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=require",
+		config.GetHost(),
+		config.GetUsername(),
+		config.GetPassword(),
+		config.GetDatabase(),
+		config.GetDBPort(),
+	)
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
-		log.Fatal("Failed to connect to DB:", err)
+		log.Fatalf("Failed to connect to DB: %v", err)
 	}
 
-	if err := DB.Ping(); err != nil {
-		log.Fatal("Failed to ping DB:", err)
-	}
+	DB = db
+	fmt.Println("Connected to PostgreSQL via GORM")
 
-	log.Println("Connected to PostgreSQL")
+	return db
 }
