@@ -11,10 +11,13 @@ import (
 )
 
 func main() {
+	log.Println("Starting server...")
+
 	// Load env vars
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using system envs")
 	}
+	log.Println("Environment variables loaded")
 
 	// Init DB
 	dbConn := db.Init()
@@ -24,7 +27,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000"
+		port = "4000"
 	}
 	log.Printf("API running on port %s\n", port)
 	r.Run(":" + port)
